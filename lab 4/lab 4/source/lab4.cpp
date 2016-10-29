@@ -1,5 +1,14 @@
 #include <windows.h>
+#include "resource.h"
+
+//Ugly global variables! 
+// todo:move to a class!
 int preMousePos[2];
+HPEN pen = CreatePen(PS_SOLID,1,RGB(0,0,0));
+HBRUSH brush = CreateSolidBrush(RGB(0,0,0));
+bool drawRects = false;
+bool drawEllipse = false;
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -13,7 +22,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				preMousePos[0] = 0;
 				preMousePos[1] = 0;
 			}
-			break;
+			return 0;
 		}
 		case WM_PAINT:
 		{
@@ -21,6 +30,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HDC hdc = BeginPaint(hwnd, &ps);
 		
 			EndPaint(hwnd, &ps);
+			return 0;
 		}
 		case WM_LBUTTONDOWN: 
 		{
@@ -32,7 +42,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//	COLORREF color = RGB(rand() % 255, rand() % 255, rand() % 255);
 			//	SetPixel(hdc, x, y, color);
 			//}
-			break;
+			return 0;
 		}
 		case WM_KEYDOWN: {
 			HDC hdc = GetDC(hwnd);
@@ -73,6 +83,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			};
 			ReleaseDC(hwnd, hdc);
+			return 0;
 		}
 		case WM_MOUSEMOVE:
 		{
@@ -86,11 +97,82 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else {
 					MoveToEx(hdc, preMousePos[0], preMousePos[1], NULL);
 				}
-				LineTo(hdc, x, y);
+				SelectObject(hdc, pen);
+				if (drawEllipse)
+				{
+					SelectObject(hdc, brush);
+					Ellipse(hdc, x - 10, y - 10, x + 10, y + 10);
+				} 
+				else if (drawRects)
+				{
+					SelectObject(hdc, brush);
+					Rectangle(hdc, x - 20, y - 10, x + 20, y + 10);
+				} 
+				else
+				{
+					SelectObject(hdc, pen);
+					LineTo(hdc, x, y);
+				}
 				preMousePos[0] = x;
 				preMousePos[1] = y;
 				ReleaseDC(hwnd, hdc);
 			}
+			return 0;
+		}
+		case WM_LBUTTONUP:
+		{
+			preMousePos[0] = 0;
+			preMousePos[1] = 0;
+		}
+		case WM_COMMAND:
+		{
+			switch (LOWORD(wParam))
+			{
+			case ID_COLOURS_RED: 
+			{
+				DeleteObject(pen);
+				pen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+				DeleteObject(brush);
+				brush = CreateSolidBrush(RGB(255, 0, 0));
+				break;
+			}
+			case ID_COLOURS_BLUE:
+			{
+				DeleteObject(pen);
+				pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
+				DeleteObject(brush);
+				brush = CreateSolidBrush(RGB(0, 0, 255));
+				break;
+			}
+			case ID_COLOURS_GREEN:
+			{
+				DeleteObject(pen);
+				pen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
+				DeleteObject(brush);
+				brush = CreateSolidBrush(RGB(0, 255, 0));
+				break;
+			}
+			case ID_SHAPES_RECTA:
+			{
+				drawRects = true;
+				drawEllipse = false;
+				break;
+			}
+			case ID_SHAPES_ELLIPSE:
+			{
+				drawRects = false;
+				drawEllipse = true;
+				break;
+			}
+			case ID_SHAPES_LINE:
+			{
+				drawRects = false;
+				drawEllipse = false;
+			}
+			default:
+				return 0;
+			}
+			return 0;
 		}
 		
 	}

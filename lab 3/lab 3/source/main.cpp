@@ -1,6 +1,7 @@
 
 #include <windows.h>
 #include <cmath>
+#include <string>
 #define NUM 1000
 #define TWOPI (2 * 3.14159)
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -75,8 +76,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		Polyline(hdc, apt, NUM);
+		EndPaint(hwnd, &ps);
 		return 0;
-
+	case WM_LBUTTONDOWN: 
+	{
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+		std::wstring textToPrint = L"My Text!";
+		RECT rect = RECT();
+		rect.left = x;
+		rect.top = y;
+		HDC hdc = GetDC(hwnd);
+		TextOut(hdc, x, y, textToPrint.c_str(), textToPrint.length());
+		ReleaseDC(hwnd, hdc);
+		return 0;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
