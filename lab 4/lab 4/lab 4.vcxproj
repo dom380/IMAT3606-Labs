@@ -71,7 +71,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./;./include</IncludePath>
+    <SourcePath>$(VC_SourcePath);./source</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -79,7 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./;./include</IncludePath>
+    <SourcePath>$(VC_SourcePath);./source</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -147,8 +149,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\lab4.cpp" />
+    <ClCompile Include="source\PaintTool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BrushStyle.h" />
+    <ClInclude Include="include\PaintTool.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

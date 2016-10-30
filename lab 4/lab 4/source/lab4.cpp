@@ -1,16 +1,13 @@
 #include <windows.h>
+#include <memory>
 #include "resource.h"
+#include "PaintTool.h"
 
-//Ugly global variables! 
-// todo:move to a class!
 int preMousePos[2];
-HPEN pen = CreatePen(PS_SOLID,1,RGB(0,0,0));
-HBRUSH brush = CreateSolidBrush(RGB(0,0,0));
-bool drawRects = false;
-bool drawEllipse = false;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	std::shared_ptr<PaintTool> paintTool = PaintTool::getInstance();
 	switch (message)
 	{
 		case WM_DESTROY:
@@ -97,22 +94,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else {
 					MoveToEx(hdc, preMousePos[0], preMousePos[1], NULL);
 				}
-				SelectObject(hdc, pen);
-				if (drawEllipse)
-				{
-					SelectObject(hdc, brush);
-					Ellipse(hdc, x - 10, y - 10, x + 10, y + 10);
-				} 
-				else if (drawRects)
-				{
-					SelectObject(hdc, brush);
-					Rectangle(hdc, x - 20, y - 10, x + 20, y + 10);
-				} 
-				else
-				{
-					SelectObject(hdc, pen);
-					LineTo(hdc, x, y);
-				}
+				paintTool->draw(hdc, x, y);
 				preMousePos[0] = x;
 				preMousePos[1] = y;
 				ReleaseDC(hwnd, hdc);
@@ -130,44 +112,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 			case ID_COLOURS_RED: 
 			{
-				DeleteObject(pen);
-				pen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-				DeleteObject(brush);
-				brush = CreateSolidBrush(RGB(255, 0, 0));
+				paintTool->setColour(RGB(255, 0, 0));
 				break;
 			}
 			case ID_COLOURS_BLUE:
 			{
-				DeleteObject(pen);
-				pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
-				DeleteObject(brush);
-				brush = CreateSolidBrush(RGB(0, 0, 255));
+				paintTool->setColour(RGB(0, 0, 255));
 				break;
 			}
 			case ID_COLOURS_GREEN:
 			{
-				DeleteObject(pen);
-				pen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
-				DeleteObject(brush);
-				brush = CreateSolidBrush(RGB(0, 255, 0));
+				paintTool->setColour(RGB(0, 255, 0));
 				break;
 			}
 			case ID_SHAPES_RECTA:
 			{
-				drawRects = true;
-				drawEllipse = false;
+				paintTool->setBrushStyle(BrushStyle::RECTANGLE);
 				break;
 			}
 			case ID_SHAPES_ELLIPSE:
 			{
-				drawRects = false;
-				drawEllipse = true;
+				paintTool->setBrushStyle(BrushStyle::ELLIPSE);
 				break;
 			}
 			case ID_SHAPES_LINE:
 			{
-				drawRects = false;
-				drawEllipse = false;
+				paintTool->setBrushStyle(BrushStyle::LINE);
+				break;
 			}
 			default:
 				return 0;
