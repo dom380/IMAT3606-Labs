@@ -22,7 +22,7 @@ CGfxOpenGL::~CGfxOpenGL()
 
 bool CGfxOpenGL::Init()
 {	
-	theRobot = new Robot;
+	
 
 	rotationAngle = 0.0f;
 
@@ -31,6 +31,7 @@ bool CGfxOpenGL::Init()
 	glDepthFunc(GL_LEQUAL);
 
 	compileShaders();
+	theRobot = new Robot(programHandle);
 
 	return true;
 }
@@ -89,10 +90,6 @@ void CGfxOpenGL::compileShaders()
 			free(log);
 		}
 	}
-
-	//////////////////////////////////////////////////////
-	/////////// Fragment shader //////////////////////////
-	//////////////////////////////////////////////////////
 
 	// Load contents of file into shaderCode here
 	ifstream fragFile;
@@ -232,9 +229,9 @@ void CGfxOpenGL::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//update global rotation
-	glm::mat4 model = modelView;
-	model = glm::translate(glm::vec3(0.0f, -0.5f, -4.0f)) * glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0)) * glm::translate(glm::vec3(0.0f, 0.5f, 4.0f)) * model;
-	glUniformMatrix4fv(modelID, 1, false, glm::value_ptr(model));
+	glm::mat4 model = glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0)) * modelView;
+	model = glm::translate(glm::vec3(0.0f, 0.0f, -30.0f)) * model;
+	
 	//Render robot
-	theRobot->DrawRobot(0.0f, 0.0f, 0.0f);
+	theRobot->DrawRobot(0.0f, 0.0f, 0.0f, model);
 }
