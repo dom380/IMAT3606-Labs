@@ -18,6 +18,8 @@ private:
 	float legAngles[2];
 	float armAngles[2];
 
+	GLuint vaoHandle;
+	GLsizei indexSize;
 
 	// draws a unit cube
 	void DrawCube(float xPos, float yPos, float zPos);
