@@ -10,10 +10,52 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include <glm/glm/gtx/transform.hpp>
-#include <vector>
-using std::vector;
+
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+vector<GLfloat> red = {
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f,
+	1.0f,0.0f,0.0f
+};
+
+vector<GLfloat> white = {
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f,
+	1.0f,1.0f,1.0f
+};
+vector<GLfloat> blue = {
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f,
+	0.0f,0.0f,1.0f
+};
+
+vector<GLfloat> yellow = {
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f,
+	1.0f,1.0f,0.0f
+};
 
 Robot::Robot(GLuint shaderHandle)
 {
@@ -29,17 +71,9 @@ Robot::Robot(GLuint shaderHandle)
 	legStates[LEFT] = FORWARD_STATE;
 	legStates[RIGHT] = BACKWARD_STATE;
 
-	vector<GLfloat> colour = {
-		1.0f,1.0f,0.0f,
-		1.0f,1.0f,0.0f,
-		1.0f,1.0f,0.0f,
-		1.0f,1.0f,0.0f,
-		1.0f,0.0f,0.0f,
-		1.0f,0.0f,0.0f,
-		1.0f,0.0f,0.0f,
-		1.0f,0.0f,0.0f
-	};
+	rotationAngle = 0;
 
+	
 	vector<GLfloat> vertices = {
 		-1.0f, -1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
@@ -65,7 +99,7 @@ Robot::Robot(GLuint shaderHandle)
 		0,1,5, //bottom face
 		0,5,4
 	};
-	GLuint vboHandles[3];
+	
 	glGenBuffers(3, vboHandles);
 	//Create IBO
 	GLuint indiceBuffer = vboHandles[0];
@@ -80,7 +114,7 @@ Robot::Robot(GLuint shaderHandle)
 	//Create VBO for colours
 	GLuint colourBuffer = vboHandles[2];
 	glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * colour.size(), &colour[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red.size(), &red[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//Create Vertex Array Object
 	glGenVertexArrays(1, &vaoHandle);
@@ -103,38 +137,12 @@ Robot::~Robot()
 {
 }
 
-void Robot::DrawCube(glm::mat4 modelMatrix)
+void Robot::DrawCube(glm::mat4 modelMatrix, vector<GLfloat> colour)
 {
-	//glPushMatrix();
-	//	glTranslatef(xPos, yPos, zPos);
-	//	glBegin(GL_POLYGON);
-	//		glVertex3f(0.0f, 0.0f, 0.0f);	// top face
-	//		glVertex3f(0.0f, 0.0f, -1.0f);
-	//		glVertex3f(-1.0f, 0.0f, -1.0f);
-	//		glVertex3f(-1.0f, 0.0f, 0.0f);
-	//		glVertex3f(0.0f, 0.0f, 0.0f);	// front face
-	//		glVertex3f(-1.0f, 0.0f, 0.0f);
-	//		glVertex3f(-1.0f, -1.0f, 0.0f);
-	//		glVertex3f(0.0f, -1.0f, 0.0f);
-	//		glVertex3f(0.0f, 0.0f, 0.0f);	// right face
-	//		glVertex3f(0.0f, -1.0f, 0.0f);
-	//		glVertex3f(0.0f, -1.0f, -1.0f);
-	//		glVertex3f(0.0f, 0.0f, -1.0f);
-	//		glVertex3f(-1.0f, 0.0f, 0.0f);	// left face
-	//		glVertex3f(-1.0f, 0.0f, -1.0f);
-	//		glVertex3f(-1.0f, -1.0f, -1.0f);
-	//		glVertex3f(-1.0f, -1.0f, 0.0f);
-	//		glVertex3f(0.0f, 0.0f, 0.0f);	// bottom face
-	//		glVertex3f(0.0f, -1.0f, -1.0f);
-	//		glVertex3f(-1.0f, -1.0f, -1.0f);
-	//		glVertex3f(-1.0f, -1.0f, 0.0f);
-	//		glVertex3f(0.0f, 0.0f, 0.0f);	// back face
-	//		glVertex3f(-1.0f, 0.0f, -1.0f);
-	//		glVertex3f(-1.0f, -1.0f, -1.0f);
-	//		glVertex3f(0.0f, -1.0f, -1.0f);
-	//	glEnd();
-	//glPopMatrix();
 	glBindVertexArray(vaoHandle);
+	glBindBuffer(GL_ARRAY_BUFFER, vboHandles[2]); //Set colour buffer values
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * colour.size(), &colour[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
 	GLint modelID = glGetUniformLocation(programHandle, "mModel");
 	glUniformMatrix4fv(modelID, 1, false, glm::value_ptr(modelMatrix));
 	glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_BYTE, BUFFER_OFFSET(0));
@@ -143,112 +151,60 @@ void Robot::DrawCube(glm::mat4 modelMatrix)
 
 void Robot::DrawArm(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();
-	//	glColor3f(1.0f, 0.0f, 0.0f);	// red
-	//	glTranslatef(xPos, yPos, zPos);
-	//	glScalef(1.0f, 4.0f, 1.0f);		// arm is a 1x4x1 cube
-	DrawCube(glm::scale(modelMatrix, glm::vec3(1.0f, 4.0f, 1.0f))*glm::translate(glm::vec3(xPos, yPos, zPos)));
-	//glPopMatrix();
+	DrawCube(glm::scale(modelMatrix, glm::vec3(1.0f, 4.0f, 1.0f))*glm::translate(glm::vec3(xPos, yPos, zPos)), red);
 }
 
 void Robot::DrawHead(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();
-	//	glColor3f(1.0f, 1.0f, 1.0f);	// white
-	//	glTranslatef(xPos, yPos, zPos);
-	//	glScalef(2.0f, 2.0f, 2.0f);		// head is a 2x2x2 cube
-	//	DrawCube(0.0f, 0.0f, 0.0f);
-	//glPopMatrix();
-	//glm::mat4 test = glm::scale(modelMatrix, glm::vec3(2.0f, 2.0f, 2.0f))*glm::translate(glm::vec3(xPos, yPos, zPos));
-	glm::mat4 model = glm::translate(glm::vec3(xPos, yPos, zPos)) * modelMatrix;
-	//DrawCube(glm::scale(modelMatrix, glm::vec3(2.0f, 2.0f, 2.0f))*glm::translate(glm::vec3(xPos, yPos, zPos)));
-	DrawCube(glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)));
+	glm::mat4 model = modelMatrix * glm::translate(glm::vec3(xPos, yPos, zPos));
+	DrawCube(glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)), white);
 }
 
 void Robot::DrawTorso(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();
-	//	glColor3f(0.0f, 0.0f, 1.0f);	// blue
-	//	glTranslatef(xPos, yPos, zPos);
-	//	glScalef(3.0f, 5.0f, 2.0f);		// torso is a 3x5x2 cube
-	//	DrawCube(0.0f, 0.0f, 0.0f);
-	//glPopMatrix();
-	glm::mat4 model = glm::translate(glm::vec3(xPos, yPos, zPos)) * modelMatrix;
-	DrawCube(glm::scale(model, glm::vec3(3.0f, 5.0f, 2.0f)));
+	glm::mat4 model = modelMatrix * glm::translate(glm::vec3(xPos, yPos, zPos));
+	DrawCube(glm::scale(model, glm::vec3(3.0f, 5.0f, 2.0f)), blue);
 }
 
 void Robot::DrawLeg(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();
-	//	glTranslatef(xPos, yPos, zPos);
-	//	
-	//	// draw the foot
-	//	glPushMatrix();
-	//		glTranslatef(0.0f, -0.5f, 0.0f);
-	//		DrawFoot(0.0f, -5.0f, 0.0f);
-	//	glPopMatrix();		
-	//	
-	//	glScalef(1.0f, 5.0f, 1.0f);		// leg is a 1x5x1 cube
-	//	glColor3f(1.0f, 1.0f, 0.0f);	// yellow
-	//	DrawCube(0.0f, 0.0f, 0.0f);
-	//glPopMatrix();
-	glm::mat4 model = glm::translate(glm::vec3(xPos, yPos, zPos))*modelMatrix;
-	DrawFoot(0.f, -5.0f, 0.0f, model);
-	DrawCube(glm::scale(model, glm::vec3(1.0f, 5.0f, 1.0f)));
+	glm::mat4 model = modelMatrix *glm::translate(glm::vec3(xPos, yPos, zPos));
+	DrawCube(glm::scale(model, glm::vec3(1.0f, 5.0f, 1.0f)), yellow);
 }
 
 void Robot::DrawFoot(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();
-	//	glColor3f(1.0f, 1.0f, 1.0f);
-	//	glTranslatef(xPos, yPos, zPos);
-	//	glScalef(1.0f, 0.5f, 3.0f);
-	//	DrawCube(0.0f, 0.0f, 0.0f);
-	//glPopMatrix();
-	glm::mat4 model = glm::translate(glm::vec3(xPos, yPos, zPos)) * modelMatrix;
-//	DrawCube(glm::scale(modelMatrix, glm::vec3(3.0f, 5.0f, 2.0f))*glm::translate(glm::vec3(xPos, yPos, zPos)));
-	DrawCube(glm::scale(model, glm::vec3(1.0f, 0.5f, 3.0f)));
+	glm::mat4 model = modelMatrix * glm::translate(glm::vec3(xPos, yPos, zPos));
+	DrawCube(glm::scale(model, glm::vec3(1.0f, 0.5f, 3.0f)), white);
 }
 
 void Robot::DrawRobot(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
-	//glPushMatrix();	
-	//	glTranslatef(xPos, yPos, zPos);	// draw robot at desired coordinates
-	glm::mat4 model = glm::translate(glm::vec3(xPos, yPos, zPos))*modelMatrix;
+	glm::mat4 model = modelMatrix *glm::translate(glm::vec3(xPos, yPos, zPos));
 
 	// draw head and torso parts
 	DrawHead(1.0f, 2.0f, 0.0f, model);	
 	DrawTorso(1.5f, 0.0f, 0.0f, model);
 
-	//	// move the left arm away from the torso and rotate it to give "walking" effect
-	//	glPushMatrix();
+	//move the left arm away from the torso and rotate it to give "walking" effect
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(armAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawArm(2.5f, 0.0f, -0.5f, glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*model);
-	//	glPopMatrix();
+	DrawArm(2.5f, 0.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
 
 	//	// move the right arm away from the torso and rotate it to give "walking" effect
-	//	glPushMatrix();
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(armAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawArm(-1.5f, 0.0f, -0.5f, glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*model);
-	//	glPopMatrix();
+	DrawArm(-1.5f, 0.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
 
-	//	// move the left leg away from the torso and rotate it to give "walking" effect
-	//	glPushMatrix();					
+	//	// move the left leg away from the torso and rotate it to give "walking" effect		
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(legAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(-0.5f, -5.0f, -0.5f, glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*model);
-	//	glPopMatrix();
+	DrawLeg(-0.5f, -5.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
 
 	//	// move the right leg away from the torso and rotate it to give "walking" effect
-	//	glPushMatrix();
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(legAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(1.5f, -5.0f, -0.5f, glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*model);
-	//	glPopMatrix();
-	//DrawCube(model);
-	//glPopMatrix();	// pop back to original coordinate system
+	DrawLeg(1.5f, -5.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
 
 }
 

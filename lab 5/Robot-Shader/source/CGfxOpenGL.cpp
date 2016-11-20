@@ -229,7 +229,7 @@ void CGfxOpenGL::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//update global rotation
-	glm::mat4 model = glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0)) * modelView;
+	glm::mat4 model = glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0));
 	model = glm::translate(glm::vec3(0.0f, 0.0f, -30.0f)) * model;
 	
 	//Render robot

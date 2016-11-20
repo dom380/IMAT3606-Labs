@@ -2,6 +2,8 @@
 #define __ROBOT_H
 
 #include <glm\glm\glm.hpp>
+#include <vector>
+using std::vector;
 
 // constants for arm and leg movement states
 const char BACKWARD_STATE = 0;
@@ -20,13 +22,14 @@ private:
 	float legAngles[2];
 	float armAngles[2];
 
+	GLuint vboHandles[3];
 	GLuint vaoHandle;
 	GLsizei indexSize;
 
 	GLuint programHandle;
 
 	// draws a unit cube
-	void DrawCube(glm::mat4 modelMatrix);
+	void DrawCube(glm::mat4 modelMatrix, vector<GLfloat> colour);
 
 	// methods to draw the parts of the robot
 	void DrawArm(float xPos, float yPos, float zPos, glm::mat4 modelMatrix);
