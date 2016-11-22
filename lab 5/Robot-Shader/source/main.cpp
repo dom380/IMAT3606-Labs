@@ -14,20 +14,20 @@ void idle() {
 	glutPostRedisplay();
 }
 
+//The fact I have to do this is dumb. C (and by extension GLUT) can't handle non-static member pointers thus the need for these ugly globals. Why do people still support C?
 void renderFunc() {
 	g_glRender->Prepare(g_hiResTimer->GetElapsedSeconds(1));
 	g_glRender->Render();
 	glutSwapBuffers();
 }
-
-void handleKeyboard(unsigned char key, int x, int y) {
-	switch (key) {
-		case 27: //escape 
-			exit(0);
-			break;
-		default:
-			break;
-	};
+void handleKeyPress(unsigned char key, int x, int y) {
+	g_glRender->handleKeyPress(key, x, y);
+}
+void handleSpecialKey(int key, int x, int y) {
+	g_glRender->handleSpecialKey(key, x, y);
+}
+void handleSpecialKeyUp(int key, int x, int y) {
+	g_glRender->handleSpecialKeyUp(key, x, y);
 }
 
 int main(int argc, char *argv[]) {
@@ -50,7 +50,9 @@ int main(int argc, char *argv[]) {
 	g_glRender->SetupProjection(windowWidth, windowHeight);
 	glutDisplayFunc(renderFunc);
 	glutIdleFunc(idle);
-	glutKeyboardFunc(handleKeyboard);
+	glutKeyboardFunc(handleKeyPress);
+	glutSpecialFunc(handleSpecialKey);
+	glutSpecialUpFunc(handleSpecialKeyUp);
 	glutMainLoop();
 
 	return 0;

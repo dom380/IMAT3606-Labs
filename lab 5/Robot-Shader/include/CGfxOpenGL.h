@@ -20,6 +20,7 @@ using std::vector;
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include <glm/glm/gtx/transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
+#include <glm/glm/gtx/rotate_vector.hpp>
 
 class Robot;
 
@@ -41,6 +42,9 @@ private:
 	GLint viewID;
 	GLint modelID;
 
+	glm::vec3 robot_front_Dir;
+	glm::vec3 robot_Pos;
+
 	void linkShader(GLint vertShader, GLint fragShader);
 
 public:
@@ -56,6 +60,10 @@ public:
 
 	void Prepare(float dt);
 	void Render();
+	//Really don't like handling of key presses in a class responsible for rendering
+	void handleKeyPress(unsigned char key, int x, int y);
+	void handleSpecialKey(int key, int x, int y);
+	void handleSpecialKeyUp(int key, int x, int y);
 };
 
 #endif

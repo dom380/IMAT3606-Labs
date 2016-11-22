@@ -1,6 +1,7 @@
 #ifdef _WINDOWS
 #include <windows.h>
 #endif
+#define GLM_FORCE_RADIANS
 
 #include <gl/glew.h>
 #include <gl/gl.h>
@@ -184,55 +185,70 @@ void Robot::DrawRobot(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 	DrawHead(1.0f, 2.0f, 0.0f, model);
 	DrawTorso(1.5f, 0.0f, 0.0f, model);
 
-	//move the left arm away from the torso and rotate it to give "walking" effect
-	//		glTranslatef(0.0f, -0.5f, 0.0f);
-	//		glRotatef(armAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawArm(2.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+	if (animate) {
 
-	// move the right arm away from the torso and rotate it to give "walking" effect
-	//		glTranslatef(0.0f, -0.5f, 0.0f);
-	//		glRotatef(armAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawArm(-1.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		//move the left arm away from the torso and rotate it to give "walking" effect
+		//		glTranslatef(0.0f, -0.5f, 0.0f);
+		//		glRotatef(armAngles[LEFT], 1.0f, 0.0f, 0.0f);
+		DrawArm(2.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
-	// move the left leg away from the torso and rotate it to give "walking" effect		
-	//		glTranslatef(0.0f, -0.5f, 0.0f);
-	//		glRotatef(legAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(-0.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		// move the right arm away from the torso and rotate it to give "walking" effect
+		//		glTranslatef(0.0f, -0.5f, 0.0f);
+		//		glRotatef(armAngles[RIGHT], 1.0f, 0.0f, 0.0f);
+		DrawArm(-1.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
-	// move the right leg away from the torso and rotate it to give "walking" effect
-	//		glTranslatef(0.0f, -0.5f, 0.0f);
-	//		glRotatef(legAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(1.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f))*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		// move the left leg away from the torso and rotate it to give "walking" effect		
+		//		glTranslatef(0.0f, -0.5f, 0.0f);
+		//		glRotatef(legAngles[LEFT], 1.0f, 0.0f, 0.0f);
+		DrawLeg(-0.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+
+		// move the right leg away from the torso and rotate it to give "walking" effect
+		//		glTranslatef(0.0f, -0.5f, 0.0f);
+		//		glRotatef(legAngles[RIGHT], 1.0f, 0.0f, 0.0f);
+		DrawLeg(1.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f))*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+	}
+	else {
+		DrawArm(2.5f, 0.0f, -0.5f, model * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		DrawArm(-1.5f, 0.0f, -0.5f, model * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		DrawLeg(-0.5f, -5.0f, -0.5f, model * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+		DrawLeg(1.5f, -5.0f, -0.5f, model *glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
+	}
 
 }
 
 void Robot::Prepare(float dt)
 {
 	// if leg is moving forward, increase angle, else decrease angle
-	for (char side = 0; side < 2; side++)
-	{
-		// arms
-		if (armStates[side] == FORWARD_STATE)
-			armAngles[side] += 20.0f * dt;
-		else
-			armAngles[side] -= 20.0f * dt;
 
-		// change state if exceeding angles
-		if (armAngles[side] >= 15.0f)
-			armStates[side] = BACKWARD_STATE;
-		else if (armAngles[side] <= -15.0f)
-			armStates[side] = FORWARD_STATE;
+		for (char side = 0; side < 2; side++)
+		{
+			// arms
+			if (armStates[side] == FORWARD_STATE)
+				armAngles[side] += 20.0f * dt;
+			else
+				armAngles[side] -= 20.0f * dt;
 
-		// legs
-		if (legStates[side] == FORWARD_STATE)
-			legAngles[side] += 20.0f * dt;
-		else
-			legAngles[side] -= 20.0f * dt;
+			// change state if exceeding angles
+			if (armAngles[side] >= 15.0f)
+				armStates[side] = BACKWARD_STATE;
+			else if (armAngles[side] <= -15.0f)
+				armStates[side] = FORWARD_STATE;
 
-		// change state if exceeding angles
-		if (legAngles[side] >= 15.0f)
-			legStates[side] = BACKWARD_STATE;
-		else if (legAngles[side] <= -15.0f)
-			legStates[side] = FORWARD_STATE;
-	}
-};
+			// legs
+			if (legStates[side] == FORWARD_STATE)
+				legAngles[side] += 20.0f * dt;
+			else
+				legAngles[side] -= 20.0f * dt;
+
+			// change state if exceeding angles
+			if (legAngles[side] >= 15.0f)
+				legStates[side] = BACKWARD_STATE;
+			else if (legAngles[side] <= -15.0f)
+				legStates[side] = FORWARD_STATE;
+		}
+
+}
+void Robot::setAnimate(bool flag)
+{
+	animate = flag;
+}

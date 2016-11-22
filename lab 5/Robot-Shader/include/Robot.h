@@ -28,6 +28,8 @@ private:
 
 	GLuint programHandle;
 
+	bool animate = false;
+
 	// draws a unit cube
 	void DrawCube(glm::mat4 modelMatrix, vector<GLfloat> colour);
 
@@ -48,6 +50,9 @@ public:
 
 	// updates the robot data
 	void Prepare(float dt);
+
+	//Set the animation flag
+	void setAnimate(bool flag);
 };
 
 #endif

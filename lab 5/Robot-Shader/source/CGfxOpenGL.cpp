@@ -8,6 +8,7 @@
 #include <math.h>
 #include "CGfxOpenGL.h"
 #include "Robot.h"
+#include <GL/glut.h>
 // disable implicit float-double casting
 #pragma warning(disable:4305)
 
@@ -22,9 +23,9 @@ CGfxOpenGL::~CGfxOpenGL()
 
 bool CGfxOpenGL::Init()
 {	
-	
-
 	rotationAngle = 0.0f;
+	robot_front_Dir = glm::vec3(0.0, 0.0, -1.0);
+	robot_Pos = glm::vec3(0.0, 0.0, -30.0);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
@@ -216,10 +217,10 @@ void CGfxOpenGL::SetupProjection(int width, int height)
 
 void CGfxOpenGL::Prepare(float dt)
 {
-	rotationAngle += 45.0f * dt;					// increase our rotation angle counter
-	if (rotationAngle >= 360.0f)					// if we've gone in a circle, reset counter
-		rotationAngle = 0.0f;
-
+	//rotationAngle += 45.0f * dt;					// increase our rotation angle counter
+	//if (rotationAngle >= 360.0f)					// if we've gone in a circle, reset counter
+	//	rotationAngle = 0.0f;
+	
 	theRobot->Prepare(dt);
 }
 
@@ -229,9 +230,63 @@ void CGfxOpenGL::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//update global rotation
-	glm::mat4 model = glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0));
-	model = glm::translate(glm::vec3(0.0f, 0.0f, -30.0f)) * model;
+	//glm::vec3(0.0f, 0.0f, -30.0f)
+	glm::mat4 model = glm::translate(robot_Pos) * glm::rotate(glm::radians(rotationAngle), glm::vec3(0, 1, 0));
+	//model = model;
 	
 	//Render robot
 	theRobot->DrawRobot(0.0f, 0.0f, 0.0f, model);
+}
+
+void CGfxOpenGL::handleKeyPress(unsigned char key, int x, int y)
+{
+	switch (key) {
+	case 27: //escape 
+		Shutdown();
+		exit(0);
+		break;
+	default:
+		break;
+	};
+}
+
+void CGfxOpenGL::handleSpecialKey(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		robot_Pos.x += robot_front_Dir.x*1.5f;
+		robot_Pos.z += robot_front_Dir.z*1.5f;
+		break;
+	case GLUT_KEY_DOWN:
+		robot_Pos.x -= robot_front_Dir.x*1.5f;
+		robot_Pos.z -= robot_front_Dir.z*1.5f;
+		break;
+	case GLUT_KEY_LEFT:
+		rotationAngle += 2;
+		robot_front_Dir = glm::rotateY(robot_front_Dir, glm::radians(2.0f));
+		break;
+	case GLUT_KEY_RIGHT:
+		rotationAngle -= 2;
+		robot_front_Dir = glm::rotateY(robot_front_Dir, glm::radians(-2.0f));
+		break;
+	default:
+		break;
+	}
+	theRobot->setAnimate(true);
+}
+
+void CGfxOpenGL::handleSpecialKeyUp(int key, int x, int y)
+{
+	switch (key) //If any of the arrow keys released, stop animating.
+	{
+	case GLUT_KEY_UP:
+	case GLUT_KEY_DOWN:
+	case GLUT_KEY_LEFT:
+	case GLUT_KEY_RIGHT:
+		theRobot->setAnimate(false);
+		break;
+	default:
+		break;
+	}
 }
