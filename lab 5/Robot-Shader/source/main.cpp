@@ -20,6 +20,16 @@ void renderFunc() {
 	glutSwapBuffers();
 }
 
+void handleKeyboard(unsigned char key, int x, int y) {
+	switch (key) {
+		case 27: //escape 
+			exit(0);
+			break;
+		default:
+			break;
+	};
+}
+
 int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -40,6 +50,7 @@ int main(int argc, char *argv[]) {
 	g_glRender->SetupProjection(windowWidth, windowHeight);
 	glutDisplayFunc(renderFunc);
 	glutIdleFunc(idle);
+	glutKeyboardFunc(handleKeyboard);
 	glutMainLoop();
 
 	return 0;

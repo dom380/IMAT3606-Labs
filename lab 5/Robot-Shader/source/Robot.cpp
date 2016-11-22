@@ -71,9 +71,6 @@ Robot::Robot(GLuint shaderHandle)
 	legStates[LEFT] = FORWARD_STATE;
 	legStates[RIGHT] = BACKWARD_STATE;
 
-	rotationAngle = 0;
-
-	
 	vector<GLfloat> vertices = {
 		-1.0f, -1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
@@ -169,6 +166,7 @@ void Robot::DrawTorso(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 void Robot::DrawLeg(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 {
 	glm::mat4 model = modelMatrix *glm::translate(glm::vec3(xPos, yPos, zPos));
+	DrawFoot(0.0f, -5.0f, 0.0f, model * glm::translate(glm::vec3(0.0f,-0.5f,0.0f)));
 	DrawCube(glm::scale(model, glm::vec3(1.0f, 5.0f, 1.0f)), yellow);
 }
 
@@ -183,28 +181,28 @@ void Robot::DrawRobot(float xPos, float yPos, float zPos, glm::mat4 modelMatrix)
 	glm::mat4 model = modelMatrix *glm::translate(glm::vec3(xPos, yPos, zPos));
 
 	// draw head and torso parts
-	DrawHead(1.0f, 2.0f, 0.0f, model);	
+	DrawHead(1.0f, 2.0f, 0.0f, model);
 	DrawTorso(1.5f, 0.0f, 0.0f, model);
 
 	//move the left arm away from the torso and rotate it to give "walking" effect
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(armAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawArm(2.5f, 0.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
+	DrawArm(2.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
-	//	// move the right arm away from the torso and rotate it to give "walking" effect
+	// move the right arm away from the torso and rotate it to give "walking" effect
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(armAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawArm(-1.5f, 0.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
+	DrawArm(-1.5f, 0.0f, -0.5f, model * glm::rotate(glm::radians(armAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
-	//	// move the left leg away from the torso and rotate it to give "walking" effect		
+	// move the left leg away from the torso and rotate it to give "walking" effect		
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(legAngles[LEFT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(-0.5f, -5.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
+	DrawLeg(-0.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[LEFT]), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
-	//	// move the right leg away from the torso and rotate it to give "walking" effect
+	// move the right leg away from the torso and rotate it to give "walking" effect
 	//		glTranslatef(0.0f, -0.5f, 0.0f);
 	//		glRotatef(legAngles[RIGHT], 1.0f, 0.0f, 0.0f);
-	DrawLeg(1.5f, -5.0f, -0.5f, /*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f))*/model);
+	DrawLeg(1.5f, -5.0f, -0.5f, model * glm::rotate(glm::radians(legAngles[RIGHT]), glm::vec3(1.0f, 0.0f, 0.0f))*glm::translate(glm::vec3(0.0f, -0.5f, 0.0f)));
 
 }
 
@@ -237,4 +235,4 @@ void Robot::Prepare(float dt)
 		else if (legAngles[side] <= -15.0f)
 			legStates[side] = FORWARD_STATE;
 	}
-}
+};
